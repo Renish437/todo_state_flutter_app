@@ -10,7 +10,7 @@ class CreateTodoScreen extends StatelessWidget {
     // TODO: implement build
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: const Color.fromARGB(255, 101, 55, 227),
+        backgroundColor: Colors.deepPurple,
         centerTitle: true,
         title: Text("Create Todo App", style: TextStyle(color: Colors.white)),
       ),

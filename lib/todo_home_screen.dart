@@ -1,160 +1,83 @@
 import 'package:flutter/material.dart';
-
-import 'todo_create_screen.dart';
 import 'dart:math';
+import 'todo_create_screen.dart';
+import 'todo_card.dart';
 
 class TodoHomeScreen extends StatefulWidget {
-  const TodoHomeScreen({super.key});
-
+  const TodoHomeScreen({super.key,required this.changeMode});
+  final Function changeMode;
   @override
   State<TodoHomeScreen> createState() => _TodoHomeScreenState();
 }
 
 class _TodoHomeScreenState extends State<TodoHomeScreen> {
-  @override
-  List todos = <Map<String, String>>[];
- 
-  Widget build(BuildContext context) {
+  List<Map<String, String>> todos = [];
 
-   void addItem(String title, String subtitle) {
+  void addItem(String title, String subtitle) {
     setState(() {
-      todos.add({"title": title, "subtitle": subtitle});
+      todos.add({
+        "id": DateTime.now().millisecondsSinceEpoch.toString(),
+        "title": title,
+        "subtitle": subtitle,
+      });
     });
   }
+
+  void deleteItem(String id) {
+    setState(() {
+      todos.removeWhere((todo) => todo['id'] == id);
+    });
+  }
+ 
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: const Color.fromARGB(255, 101, 55, 227),
-
-        title: Container(
-          margin: EdgeInsets.all(8),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-
-            children: [
-              Text("Todo App", style: TextStyle(color: Colors.white)),
-              IconButton(
-                onPressed: () {
-                
-                  Navigator.push(context,MaterialPageRoute(builder: (_)=>CreateTodoScreen(addItem)));
-                },
-                icon: Icon(Icons.add_circle),
-                color: Colors.white,
-                iconSize: 30,
-              ),
-             
-            ],
-          ),
+         backgroundColor: Colors.deepPurple,
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text("Todo App", style: TextStyle(color: Colors.white)),
+            IconButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => CreateTodoScreen(addItem),
+                  ),
+                );
+              },
+              icon: const Icon(Icons.add_circle, color: Colors.white, size: 30),
+            ),
+          ],
         ),
       ),
-      backgroundColor: Color.fromARGB(255, 245, 245, 246),
+       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: Padding(
-        padding:const EdgeInsets.only(bottom:20),
+        padding: const EdgeInsets.only(bottom: 20),
         child: SingleChildScrollView(
-        scrollDirection: Axis.vertical,
-        child: Container(
-        padding: EdgeInsets.only(top: 20),
-        margin: EdgeInsets.symmetric(horizontal: 20, vertical: 25),
-          child: Column(
-            spacing: 10,
-            children: [
-              
-             for(var data in todos)...{
-              TodoCard(data['title']!,data['subtitle']!)
-             }
-            
-            ],
+          child: Container(
+            padding: const EdgeInsets.only(top: 20),
+            margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 25),
+            child: Column(
+              children: [
+                for (var data in todos)
+                  TodoCard(
+                    key: ValueKey(data['id']),
+                    id: data['id']!,
+                    title: data['title']!,
+                    subtitle: data['subtitle']!,
+                    onDelete: deleteItem,
+                  ),
+              ],
+            ),
           ),
         ),
+      
       ),
-        ),
+      floatingActionButton: FloatingActionButton(onPressed: (){
+        widget.changeMode();
+      }, child:Icon(Icons.light)),
     );
   }
 }
-
-class TodoCard extends StatefulWidget {
-  final String title;
-  final String subtitle;
-
-  const TodoCard(this.title, [this.subtitle = "Subtitles",]) : super(key: null);
-
-  @override
-  State<TodoCard> createState() => _TodoCardState();
-}
-
-
-
-
-class _TodoCardState extends State<TodoCard> {
-  get title => this.title;
-  
-  get subtitle =>this.subtitle;
-Color? cardColor;
-  List<Color> colorList = [
-    Colors.redAccent,
-    Colors.blueAccent,
-    Colors.deepPurple
-  ];
-  
- 
-  @override
-
-  void initState() {
-    var index =Random().nextInt(colorList.length);
-    cardColor = colorList[index];
-    super.initState();
-  }
- 
-  
- 
-  Widget build(BuildContext context) {
-    return Container(
-                padding: EdgeInsets.all(15),
-                decoration: BoxDecoration(
-                  // color: Colors.white,
-                  color: cardColor,
-
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.1), // soft gray/black
-                      blurRadius: 20, // soften edges
-                      spreadRadius: 2, // slight spread
-                      offset: Offset(0, 10), // subtle downward shadow
-                    ),
-                  ],
-                ),
-
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Column(
-                      spacing: 10,
-
-                      children: [
-                        Text(
-                          widget.title,
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 21,
-                          ),
-                        ),
-                        Text(
-                          widget.subtitle,
-                          style: TextStyle(
-                            fontWeight: FontWeight.w500,
-                            fontSize: 17,
-                          ),
-                        ),
-                      ],
-                    ),
-                    IconButton(
-                      onPressed: ()=>{},
-                      icon: Icon(Icons.delete),
-                      color: Colors.red,
-                      iconSize: 30,
-                    ),
-                  ],
-                ),
-              );
-  }
-}
-
